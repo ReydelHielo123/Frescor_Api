@@ -39,13 +39,13 @@ builder.Services.AddCors(options =>
 			.WithOrigins(
 				"http://localhost:4200",
 				"https://localhost:4200",
-				"https://frescor-app-ulz4.vercel.app"
+				"https://frescor-app-ulz4.vercel.app",
+				"https://frescor-app.vercel.app"
 			)
 			.AllowAnyMethod()
 			.AllowAnyHeader();
 	});
 });
-
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(options =>
