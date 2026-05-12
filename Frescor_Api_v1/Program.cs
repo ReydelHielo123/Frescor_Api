@@ -1,15 +1,36 @@
+using Frescor_Api_v1.Data;
 using Frescor_Api_v1.Models;
+using Frescor_Api_v1.Resolvers;
+using Frescor_Api_v1.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using PdfSharp.Fonts;
+using System.Reflection;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddDbContext<AppDbContext>(options =>
+	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//Configuracion de los CORS
+var assembly = Assembly.GetExecutingAssembly();
+var services = assembly.GetTypes()
+	.Where(t => t.Name.EndsWith("Service") && !t.IsInterface && !t.IsAbstract);
+
+foreach (var service in services)
+{
+	var interfaceType = service.GetInterfaces().FirstOrDefault();
+	if (interfaceType != null)
+	{
+		builder.Services.AddScoped(interfaceType, service);
+	}
+}
+
 builder.Services.AddCors(options =>
 {
 	options.AddPolicy("AllowAll", policy =>
@@ -20,20 +41,40 @@ builder.Services.AddCors(options =>
 	});
 });
 
+GlobalFontSettings.FontResolver = new PdfFontResolver();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+	.AddJwtBearer(options =>
+	{
+		options.TokenValidationParameters = new TokenValidationParameters
+		{
+			ValidateIssuer = true,
+			ValidateAudience = true,
+			ValidateLifetime = true,
+			ValidateIssuerSigningKey = true,
+			ValidIssuer = builder.Configuration["Jwt:Issuer"],
+			ValidAudience = builder.Configuration["Jwt:Audience"],
+			IssuerSigningKey = new SymmetricSecurityKey(
+				Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+		};
+	});
+
+builder.Services.AddAuthorization();
+builder.Services.AddScoped<JWTService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+	app.UseSwagger();
+	app.UseSwaggerUI();
 }
 
 app.UseCors("AllowAll");
-app.UseHttpsRedirection();
 
-//Manejo global de errores
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.Use(async (context, next) =>
 {
 	try
@@ -46,12 +87,12 @@ app.Use(async (context, next) =>
 		await context.Response.WriteAsJsonAsync(new ApiResponse<object>
 		{
 			Success = false,
-			Message = "An unexpected error occurred",
+			Message = ex.Message, // cambiá esto temporalmente
 			Data = null
 		});
 	}
 });
 
+app.UseHttpsRedirection();
 app.MapControllers();
-
 app.Run();
