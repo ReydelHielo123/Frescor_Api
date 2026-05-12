@@ -51,13 +51,13 @@ namespace Frescor_Api_v1.Services
 					},
 					ExternalReference = orderId.ToString(),
 					NotificationUrl = "https://illicitly-shale-threefold.ngrok-free.dev/api/payment/Webhook",
+					AutoReturn = "approved",
 					BackUrls = new PreferenceBackUrlsRequest
 					{
-						Success = $"{frontendBaseUrl}/payment-result",
-						Pending = $"{frontendBaseUrl}/payment-result",
-						Failure = $"{frontendBaseUrl}/payment-result"
+						Success = "https://frescor-app-ulz4.vercel.app/#/payment-result",
+						Failure = "https://frescor-app-ulz4.vercel.app/#/payment-result",
+						Pending = "https://frescor-app-ulz4.vercel.app/#/payment-result"
 					},
-					//AutoReturn = "approved",
 				};
 
 				var client = new PreferenceClient();
