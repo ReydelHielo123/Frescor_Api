@@ -41,7 +41,6 @@ builder.Services.AddCors(options =>
 	});
 });
 
-GlobalFontSettings.FontResolver = new PdfFontResolver();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 	.AddJwtBearer(options =>
