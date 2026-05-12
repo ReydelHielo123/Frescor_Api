@@ -35,9 +35,14 @@ builder.Services.AddCors(options =>
 {
 	options.AddPolicy("AllowAll", policy =>
 	{
-		policy.AllowAnyOrigin()
-			  .AllowAnyMethod()
-			  .AllowAnyHeader();
+		policy
+			.WithOrigins(
+				"http://localhost:4200",
+				"https://localhost:4200",
+				"https://frescor-app-ulz4.vercel.app"
+			)
+			.AllowAnyMethod()
+			.AllowAnyHeader();
 	});
 });
 
