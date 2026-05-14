@@ -8,6 +8,7 @@ namespace Frescor_Api_v1.Models;
 public partial class Pedido2
 {
 	public int Id { get; set; }
+	public string? Telefono { get; set; }
 	public string? Direccion { get; set; }
 	[Column("kg10_5")]
 	public int? Kg10_5 { get; set; }

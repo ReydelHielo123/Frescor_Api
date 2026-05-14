@@ -1,4 +1,4 @@
-﻿using Frescor_Api_v1.Interfaces;
+using Frescor_Api_v1.Interfaces;
 using Frescor_Api_v1.Models;
 using Frescor_Api_v1.Models.Responses;
 using Microsoft.AspNetCore.Mvc;
