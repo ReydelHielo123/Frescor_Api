@@ -50,7 +50,7 @@ namespace Frescor_Api_v1.Services
 						}
 					},
 					ExternalReference = orderId.ToString(),
-					NotificationUrl = "https://illicitly-shale-threefold.ngrok-free.dev/api/payment/Webhook",
+					NotificationUrl = "https://frescorapi-production.up.railway.app/api/payment/Webhook",
 					AutoReturn = "approved",
 					BackUrls = new PreferenceBackUrlsRequest
 					{
