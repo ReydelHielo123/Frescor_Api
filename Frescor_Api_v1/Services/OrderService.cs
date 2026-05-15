@@ -41,6 +41,21 @@ namespace Frescor_Api_v1.Services
 			}
 		}
 
+		public async Task<ApiResponse<Pedido2>> GetOrderByIdAsync(int id)
+		{
+			try
+			{
+				var pedido = await _context.Pedido2.FirstOrDefaultAsync(x => x.Id == id);
+				if (pedido == null)
+					return new ApiResponse<Pedido2> { Success = false, Message = "Pedido no encontrado", Data = null };
+				return new ApiResponse<Pedido2> { Success = true, Data = pedido };
+			}
+			catch (Exception ex)
+			{
+				return new ApiResponse<Pedido2> { Success = false, Message = ex.Message, Data = null };
+			}
+		}
+
 		public async Task<ApiResponse<Pedido2>> InsertOrderAsync(Pedido2 order)
 		{
 			try

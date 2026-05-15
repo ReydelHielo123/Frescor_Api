@@ -47,6 +47,14 @@ namespace Frescor_Api_v1.Controllers
 			}
 		}
 
+		[HttpGet("{id}")]
+		public async Task<ActionResult<ApiResponse<Pedido2>>> GetOrderById(int id)
+		{
+			var response = await _orderService.GetOrderByIdAsync(id);
+			if (response.Success) return Ok(response);
+			return BadRequest(response);
+		}
+
 		[HttpPost]
 		[ActionName("InsertOrder")]
 		[ProducesResponseType(typeof(ApiResponse<List<Pedido2>>), StatusCodes.Status200OK)]
