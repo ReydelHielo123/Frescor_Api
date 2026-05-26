@@ -11,7 +11,7 @@ namespace Frescor_Api_v1.Interfaces
 		Task<ApiResponse<PaginatedResponse<Pedido2>>> FiltrarPedidosAsync(
 			DateTime? desde, DateTime? hasta, string? direccion,
 			int? zona, string? formaPago, string? estado,
-			int pagina, int tamañoPagina);
+			int pagina, int tamañoPagina, string? telefono = null);
 		Task<ApiResponse<object>> GetMetricasAsync();
 	}
 }

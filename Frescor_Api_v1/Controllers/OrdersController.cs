@@ -85,11 +85,12 @@ namespace Frescor_Api_v1.Controllers
 		[FromQuery] string? formaPago,
 		[FromQuery] string? estado,
 		[FromQuery] int pagina = 1,
-		[FromQuery] int tamañoPagina = 50)
+		[FromQuery] int tamañoPagina = 50,
+		[FromQuery] string? telefono = null)
 		{
 			_logger.LogInformation("Filtrando pedidos");
 			var response = await _orderService.FiltrarPedidosAsync(
-				desde, hasta, direccion, zona, formaPago, estado, pagina, tamañoPagina);
+				desde, hasta, direccion, zona, formaPago, estado, pagina, tamañoPagina, telefono);
 			if (response.Success)
 				return Ok(response);
 			else

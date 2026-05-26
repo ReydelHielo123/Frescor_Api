@@ -15,5 +15,7 @@ namespace Frescor_Api_v1.Data
 		public DbSet<UsuariosLogin> UsuariosLogin { get; set; }
 		public DbSet<Cupone> Cupones { get; set; }
 		public DbSet<Zona> Zonas { get; set; }
+	public DbSet<Boleta> Boletas { get; set; }
+	public DbSet<BoletaItem> BoletaItems { get; set; }
 	}
 }

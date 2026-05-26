@@ -84,7 +84,7 @@ namespace Frescor_Api_v1.Services
 		public async Task<ApiResponse<PaginatedResponse<Pedido2>>> FiltrarPedidosAsync(
 			DateTime? desde, DateTime? hasta, string? direccion,
 			int? zona, string? formaPago, string? estado,
-			int pagina, int tamañoPagina)
+			int pagina, int tamañoPagina, string? telefono = null)
 		{
 			try
 			{
@@ -114,6 +114,9 @@ namespace Frescor_Api_v1.Services
 
 				if (!string.IsNullOrEmpty(estado))
 					query = query.Where(p => p.Estado == estado);
+
+				if (!string.IsNullOrEmpty(telefono))
+					query = query.Where(p => p.Telefono == telefono);
 
 				var totalRegistros = await query.CountAsync();
 
