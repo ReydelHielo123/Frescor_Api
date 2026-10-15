@@ -151,6 +151,54 @@ namespace Frescor_Api_v1.Services
 			}
 		}
 
+        public async Task<ApiResponse<PedidosRecientesResponse>> GetPedidosRecientesAsync(
+            string telefono, int pagina, int tamañoPagina)
+        {
+            var normalizado = System.Text.RegularExpressions.Regex.Replace(telefono ?? "", @"[\s()+.\-]", "");
+            if (!System.Text.RegularExpressions.Regex.IsMatch(normalizado, @"^[0-9]{10,15}$") ||
+                pagina < 1 || pagina > 100000 || tamañoPagina < 1 || tamañoPagina > 50)
+                return new ApiResponse<PedidosRecientesResponse> { Success = false, Message = "Teléfono o paginación inválidos." };
+
+            try
+            {
+                // Pedido_2 guarda la fecha local de Argentina sin zona horaria.
+                var hoy = DateTime.UtcNow.AddHours(-3).Date;
+                var desde = hoy.AddDays(-13);
+                var finExclusivo = hoy.AddDays(1);
+                var query = _context.Pedido2.AsNoTracking().Where(p =>
+                    p.Telefono != null &&
+                    p.Telefono.Replace(" ", "").Replace("+", "").Replace("(", "").Replace(")", "")
+                        .Replace("-", "").Replace(".", "") == normalizado &&
+                    p.Fecha_Carga >= desde && p.Fecha_Carga < finExclusivo);
+
+                var total = await query.CountAsync();
+                var items = await query.OrderByDescending(p => p.Fecha_Carga).ThenByDescending(p => p.Id)
+                    .Skip((pagina - 1) * tamañoPagina).Take(tamañoPagina)
+                    .Select(p => new PedidoRecienteResponse
+                    {
+                        Id = p.Id, Kg1_5 = p.Kg1_5 ?? 0, Kg2_5 = p.Kg2_5 ?? 0,
+                        Kg4_5 = p.Kg4_5 ?? 0, Kg10_5 = p.Kg10_5 ?? 0, Triturado = p.Triturado ?? 0,
+                        Fecha_Carga = p.Fecha_Carga, Precio_Total = p.Precio_Total ?? "0",
+                        FormaPago = p.FormaPago ?? "", Estado = p.Estado ?? "Pendiente"
+                    }).ToListAsync();
+                return new ApiResponse<PedidosRecientesResponse>
+                {
+                    Success = true, Message = "Pedidos recientes consultados correctamente.",
+                    Data = new PedidosRecientesResponse
+                    {
+                        Items = items, TotalRegistros = total, Pagina = pagina, TamañoPagina = tamañoPagina,
+                        Desde = desde, Hasta = hoy
+                    }
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error al consultar pedidos recientes");
+                return new ApiResponse<PedidosRecientesResponse>
+                { Success = false, Message = "No se pudieron consultar los pedidos. Intentá nuevamente." };
+            }
+        }
+
 		public async Task<ApiResponse<object>> GetMetricasAsync()
 		{
 			try

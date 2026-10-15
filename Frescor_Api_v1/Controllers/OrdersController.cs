@@ -97,6 +97,24 @@ namespace Frescor_Api_v1.Controllers
 				return BadRequest(response);
 		}
 
+        /// <summary>Pedidos de un teléfono durante los últimos 14 días calendario de Argentina.</summary>
+        [HttpGet("recientes")]
+        [ProducesResponseType(typeof(ApiResponse<PedidosRecientesResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<ApiResponse<PedidosRecientesResponse>>> GetPedidosRecientes(
+            [FromQuery] string? telefono, [FromQuery] int pagina = 1, [FromQuery] int tamañoPagina = 10)
+        {
+            var normalizado = System.Text.RegularExpressions.Regex.Replace(telefono ?? "", @"[\s()+.\-]", "");
+            if (!System.Text.RegularExpressions.Regex.IsMatch(normalizado, @"^[0-9]{10,15}$") ||
+                pagina < 1 || pagina > 100000 || tamañoPagina < 1 || tamañoPagina > 50)
+                return BadRequest(new ApiResponse<PedidosRecientesResponse>
+                { Success = false, Message = "Ingresá un teléfono de 10 a 15 dígitos y una paginación válida (1 a 50 pedidos por página)." });
+
+            var response = await _orderService.GetPedidosRecientesAsync(normalizado, pagina, tamañoPagina);
+            return response.Success ? Ok(response) : StatusCode(StatusCodes.Status500InternalServerError, response);
+        }
+
 		[HttpGet("metricas")]
 		[ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<ApiResponse<object>>> GetMetricas()
